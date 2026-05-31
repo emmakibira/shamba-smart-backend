@@ -84,7 +84,28 @@ Response:
     "first_name": "John",
     "last_name": "Doe"
   },
-  "token": "1"
+  "access": "<jwt_access_token>",
+  "refresh": "<jwt_refresh_token>"
+}
+```
+
+### Refresh Token
+
+**POST** `/auth/refresh/`
+
+Request:
+
+```json
+{
+  "refresh": "<jwt_refresh_token>"
+}
+```
+
+Response:
+
+```json
+{
+  "access": "<jwt_access_token>"
 }
 ```
 

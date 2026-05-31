@@ -72,19 +72,19 @@ python manage.py runserver 0.0.0.0:8000
 
 ### User Profile
 
-- `GET /api/profile/` - Get user profile
-- `PUT /api/profile/` - Update user profile
+- `GET /api/users/profile/` - Get user profile
+- `PUT /api/users/profile/` - Update user profile
 
 ## Project Structure
 
 ```
-shamba-smart-backend/
+backend/
 ├── core/                    # Django project settings
 ├── apps/
-│   ├── auth/               # Authentication app
-│   ├── dashboard/          # Dashboard data app
-│   ├── crops/              # Crops management app
-│   └── users/              # User profile app
+│   ├── auth/                # Authentication app
+│   ├── dashboard/           # Dashboard data app
+│   ├── crops/               # Crops management app
+│   └── users/               # User profile app
 ├── manage.py
 └── requirements.txt
 ```

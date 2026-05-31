@@ -4,6 +4,7 @@ Django settings for Shamba Smart project.
 
 from pathlib import Path
 from decouple import config, Csv
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,10 +28,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'drf_spectacular',
+    'django_extensions',
     'apps.auth',
     'apps.users',
     'apps.crops',
     'apps.dashboard',
+    'apps.community',
+    'apps.payments',
+    'apps.ai_service',
+    'apps.farm_data',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +123,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 # CORS Settings
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
@@ -127,3 +140,39 @@ CORS_ALLOW_CREDENTIALS = True
 
 # API Base URL (for frontend to connect)
 API_BASE_URL = config('API_BASE_URL', default='http://localhost:8000/api')
+
+# Stripe Configuration
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+
+# Firebase Configuration
+FIREBASE_CREDENTIALS_PATH = config('FIREBASE_CREDENTIALS_PATH', default='')
+
+# AI Services Configuration
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+HUGGINGFACE_API_KEY = config('HUGGINGFACE_API_KEY', default='')
+
+# Weather API Configuration
+OPENWEATHER_API_KEY = config('OPENWEATHER_API_KEY', default='')
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
+    },
+}
