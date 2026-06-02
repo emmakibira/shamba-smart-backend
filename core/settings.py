@@ -2,6 +2,7 @@
 Django settings for Shamba Smart project.
 """
 
+from typing import TypeVarTuple
 from pathlib import Path
 from decouple import config, Csv
 from datetime import timedelta
@@ -16,7 +17,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-in-pro
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0', cast=Csv())
 
 # Application definition
 INSTALLED_APPS = [
@@ -157,6 +158,9 @@ HUGGINGFACE_API_KEY = config('HUGGINGFACE_API_KEY', default='')
 OPENWEATHER_API_KEY = config('OPENWEATHER_API_KEY', default='')
 
 # Logging Configuration
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -166,7 +170,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'debug.log',
+            'filename': LOGS_DIR / 'debug.log',
         },
     },
     'loggers': {

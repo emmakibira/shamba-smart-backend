@@ -18,12 +18,9 @@ def chat_with_assistant(request):
         
         user_profile = request.user.profile
         
-        # Create context from user's farm data
-        context = f"Crop types: {', '.join(user_profile.get_crops_list())}, Soil type: {user_profile.soil_type}, Farm size: {user_profile.farm_size} hectares"
-        
-        # Get response from Gemini
+        # Get response from Gemini with real farm data context
         client = GeminiClient()
-        assistant_message = client.get_farming_advice(user_message, context)
+        assistant_message = client.get_farming_advice(user_message, user_profile=user_profile)
         
         if not assistant_message:
             return Response({'error': 'Could not get response from AI'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
