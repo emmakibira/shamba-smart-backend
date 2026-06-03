@@ -37,6 +37,8 @@ class FirebaseAuth:
         except Exception as e:
             logger.warning(f"Firebase initialization warning: {str(e)}")
         return cls._app
+  
+    print("FIREBASE_CREDENTIALS_PATH =", settings.FIREBASE_CREDENTIALS_PATH)
     
     @classmethod
     def verify_token(cls, token):
