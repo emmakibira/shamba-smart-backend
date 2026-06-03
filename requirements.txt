@@ -1,4 +1,5 @@
 amqp==5.3.1
+annotated-types==0.7.0
 anyio==4.12.1
 argcomplete==3.6.3
 asgiref==3.11.1
@@ -29,6 +30,7 @@ dasbus==1.7
 dbus-python==1.4.0
 dbus_next==0.2.3
 distro==1.9.0
+dj-database-url==3.1.2
 Django==6.0.4
 django-cors-headers==4.9.0
 django-extensions==4.1
@@ -41,22 +43,27 @@ file-magic==0.4.0
 filelock==3.29.0
 firebase_admin==7.4.0
 ghauri==1.4.3
-google-api-core==2.30.3
+google-ai-generativelanguage==0.6.15
+google-api-core==2.25.2
+google-api-python-client==2.197.0
 google-auth==2.53.0
+google-auth-httplib2==0.4.0
 google-cloud-core==2.6.0
 google-cloud-firestore==2.27.0
 google-cloud-storage==3.10.1
 google-crc32c==1.8.0
+google-generativeai==0.8.6
 google-resumable-media==2.9.0
 googleapis-common-protos==1.75.0
 grpcio==1.81.0
-grpcio-status==1.81.0
+grpcio-status==1.71.2
 gunicorn==26.0.0
 h11==0.16.0
 h2==4.3.0
 hpack==4.1.0
 html2text==2025.4.15
 httpcore==1.0.9
+httplib2==0.31.2
 httpx==0.28.1
 humanize==4.13.0
 hyperframe==6.1.0
@@ -88,7 +95,7 @@ ply==3.11
 productmd==1.50
 prompt_toolkit==3.0.52
 proto-plus==1.28.0
-protobuf==7.35.0
+protobuf==5.29.6
 psutil==7.0.0
 psycopg2-binary==2.9.12
 ptyprocess==0.7.0
@@ -100,12 +107,15 @@ pycairo==1.28.0
 pycparser==2.22
 pycryptodomex==3.23.0
 pycups==2.0.4
+pydantic==2.13.4
+pydantic_core==2.46.4
 pyenchant==3.2.2
 pygdbmi==0.11.0.0
 PyGObject==3.54.5
 pyinotify==0.9.6
 PyJWT==2.12.1
 pykickstart @ file:///builddir/build/BUILD/pykickstart-3.66-build/pykickstart-3.66
+pyparsing==3.3.2
 pyparted==3.13.0
 PySocks==1.7.1
 python-augeas==1.2.0
@@ -145,6 +155,8 @@ stripe==15.2.0
 systemd-python==235
 termcolor==3.3.0
 tldextract==5.3.1
+tqdm==4.67.3
+typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2026.2
 tzlocal==5.3.1
@@ -153,4 +165,5 @@ uritemplate==4.2.0
 urllib3==2.6.3
 vine==5.1.0
 wcwidth==0.7.0
+whitenoise==6.12.0
 xkbregistry==0.3

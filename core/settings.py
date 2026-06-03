@@ -154,8 +154,9 @@ FIREBASE_CREDENTIALS_PATH = config('FIREBASE_CREDENTIALS_PATH', default='')
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 HUGGINGFACE_API_KEY = config('HUGGINGFACE_API_KEY', default='')
 
-# Weather API Configuration
-OPENWEATHER_API_KEY = config('OPENWEATHER_API_KEY', default='')
+# Weather API Configuration - Using Open-Meteo (FREE, no API key needed)
+OPENWEATHER_API_KEY = config('OPENWEATHER_API_KEY', default='')  # Optional, kept for backward compatibility
+OPEN_METEO_BASE_URL = 'https://api.open-meteo.com/v1'
 
 # Logging Configuration
 LOGS_DIR = BASE_DIR / 'logs'

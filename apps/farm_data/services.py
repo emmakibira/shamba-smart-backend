@@ -9,15 +9,13 @@ logger = logging.getLogger(__name__)
 
 
 class WeatherService:
-    """Service for fetching weather data from OpenWeatherMap (free tier)"""
+    """Service for fetching weather data from Open-Meteo (FREE, no API key required)"""
     
-    API_KEY = getattr(settings, 'OPENWEATHER_API_KEY', '')
-    CURRENT_WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather'
-    FORECAST_URL = 'https://api.openweathermap.org/data/2.5/forecast'
+    BASE_URL = getattr(settings, 'OPEN_METEO_BASE_URL', 'https://api.open-meteo.com/v1')
     
     @classmethod
     def get_weather(cls, latitude, longitude):
-        """Get weather for location with caching"""
+        """Get current weather for location with caching"""
         # Check cache first
         try:
             cache = WeatherCache.objects.get(
@@ -25,118 +23,193 @@ class WeatherService:
                 longitude=float(longitude)
             )
             if cache.is_fresh():
+                logger.info(f"Returning cached weather for {latitude}, {longitude}")
                 return cache.weather_data
             else:
                 cache.delete()
         except WeatherCache.DoesNotExist:
             pass
         
-        # Fetch from API
+        # Fetch from Open-Meteo API (completely free, no API key)
         params = {
-            'lat': latitude,
-            'lon': longitude,
-            'appid': cls.API_KEY,
-            'units': 'metric'
+            'latitude': latitude,
+            'longitude': longitude,
+            'current_weather': 'true',
+            'hourly': 'temperature_2m,relativehumidity_2m,precipitation,wind_speed_10m',
+            'timezone': 'Africa/Dar_es_Salaam',
+            'forecast_days': 7
         }
         
         try:
-            response = requests.get(cls.CURRENT_WEATHER_URL, params=params, timeout=5)
+            logger.info(f"Fetching REAL weather from Open-Meteo for {latitude}, {longitude}")
+            response = requests.get(f"{cls.BASE_URL}/forecast", params=params, timeout=10)
             response.raise_for_status()
             weather_data = response.json()
             
-            # Cache the result
+            # Format to match expected structure for compatibility
+            formatted_data = {
+                'current_weather': weather_data.get('current_weather', {}),
+                'hourly': weather_data.get('hourly', {}),
+                'daily': cls._extract_daily_forecast(weather_data),
+                'weather': [{'main': cls._get_weather_condition(weather_data.get('current_weather', {}))}]
+            }
+            
+            # Cache for 30 minutes
             WeatherCache.objects.update_or_create(
                 latitude=float(latitude),
                 longitude=float(longitude),
-                defaults={'weather_data': weather_data}
+                defaults={'weather_data': formatted_data}
             )
             
-            return weather_data
+            return formatted_data
         except Exception as e:
-            logger.error(f"Error fetching weather: {str(e)}")
+            logger.error(f"Error fetching weather from Open-Meteo: {str(e)}")
             return None
     
     @classmethod
     def get_weather_forecast(cls, latitude, longitude, days=5):
-        """Get weather forecast for upcoming days"""
+        """Get weather forecast from Open-Meteo"""
         params = {
-            'lat': latitude,
-            'lon': longitude,
-            'appid': cls.API_KEY,
-            'units': 'metric',
-            'cnt': min(days * 8, 40)  # 5-day forecast (8 forecasts per day)
+            'latitude': latitude,
+            'longitude': longitude,
+            'daily': 'temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode',
+            'timezone': 'Africa/Dar_es_Salaam',
+            'forecast_days': days
         }
         
         try:
-            response = requests.get(cls.FORECAST_URL, params=params, timeout=5)
+            response = requests.get(f"{cls.BASE_URL}/forecast", params=params, timeout=10)
             response.raise_for_status()
-            forecast_data = response.json()
+            data = response.json()
             
-            # Parse and organize by day
-            daily_forecasts = {}
-            for item in forecast_data.get('list', []):
-                date = item['dt_txt'].split()[0]
-                if date not in daily_forecasts:
-                    daily_forecasts[date] = {
-                        'date': date,
-                        'temp_min': item['main']['temp_min'],
-                        'temp_max': item['main']['temp_max'],
-                        'humidity': item['main']['humidity'],
-                        'description': item['weather'][0]['description'],
-                        'rainfall_probability': item.get('pop', 0) * 100,
-                    }
-                else:
-                    # Update with min/max
-                    daily_forecasts[date]['temp_min'] = min(
-                        daily_forecasts[date]['temp_min'], 
-                        item['main']['temp_min']
-                    )
-                    daily_forecasts[date]['temp_max'] = max(
-                        daily_forecasts[date]['temp_max'], 
-                        item['main']['temp_max']
-                    )
+            # Parse daily forecast
+            daily_forecasts = []
+            daily_data = data.get('daily', {})
+            times = daily_data.get('time', [])
             
-            return list(daily_forecasts.values())
+            # Weather code mapping (WMO codes)
+            weather_codes = {
+                0: 'Clear sky',
+                1: 'Mainly clear',
+                2: 'Partly cloudy',
+                3: 'Overcast',
+                45: 'Foggy',
+                51: 'Light drizzle',
+                61: 'Rain',
+                71: 'Snow fall',
+                80: 'Rain showers'
+            }
+            
+            for i, date in enumerate(times):
+                weather_code = daily_data.get('weathercode', [0])[i] if i < len(daily_data.get('weathercode', [])) else 0
+                daily_forecasts.append({
+                    'date': date,
+                    'temp_min': daily_data.get('temperature_2m_min', [0])[i] if i < len(daily_data.get('temperature_2m_min', [])) else 0,
+                    'temp_max': daily_data.get('temperature_2m_max', [0])[i] if i < len(daily_data.get('temperature_2m_max', [])) else 0,
+                    'precipitation': daily_data.get('precipitation_sum', [0])[i] if i < len(daily_data.get('precipitation_sum', [])) else 0,
+                    'description': weather_codes.get(weather_code, 'Unknown'),
+                    'rainfall_probability': min(100, int(daily_data.get('precipitation_sum', [0])[i] * 10)) if i < len(daily_data.get('precipitation_sum', [])) else 0,
+                })
+            
+            return daily_forecasts
         except Exception as e:
-            logger.error(f"Error fetching forecast: {str(e)}")
+            logger.error(f"Error fetching forecast from Open-Meteo: {str(e)}")
             return []
+    
+    @classmethod
+    def _extract_daily_forecast(cls, weather_data):
+        """Extract daily forecast from Open-Meteo response"""
+        daily = weather_data.get('daily', {})
+        forecasts = []
+        times = daily.get('time', [])
+        
+        for i, date in enumerate(times):
+            forecasts.append({
+                'date': date,
+                'temp_max': daily.get('temperature_2m_max', [0])[i] if i < len(daily.get('temperature_2m_max', [])) else 0,
+                'temp_min': daily.get('temperature_2m_min', [0])[i] if i < len(daily.get('temperature_2m_min', [])) else 0,
+                'precipitation': daily.get('precipitation_sum', [0])[i] if i < len(daily.get('precipitation_sum', [])) else 0,
+            })
+        
+        return forecasts
+    
+    @classmethod
+    def _get_weather_condition(cls, current_weather):
+        """Map Open-Meteo weather code to condition string"""
+        weather_code = current_weather.get('weathercode', 0)
+        
+        if weather_code in [0, 1]:
+            return 'Clear'
+        elif weather_code in [2, 3]:
+            return 'Clouds'
+        elif weather_code in [45, 48]:
+            return 'Fog'
+        elif weather_code in [51, 53, 55, 56, 57]:
+            return 'Drizzle'
+        elif weather_code in [61, 63, 65, 66, 67]:
+            return 'Rain'
+        elif weather_code in [71, 73, 75, 77]:
+            return 'Snow'
+        elif weather_code in [80, 81, 82]:
+            return 'Rain'
+        elif weather_code >= 95:
+            return 'Thunderstorm'
+        else:
+            return 'Unknown'
     
     @classmethod
     def get_farming_advisory(cls, weather_data, crop_type='general'):
         """Generate farming advisory based on weather"""
         if not weather_data:
-            return None
+            return cls._get_default_advisory()
         
-        advisories = {
-            'rainy': "Good time for watering. Ensure proper drainage to prevent waterlogging.",
-            'clear': "Good for field activities. Monitor soil moisture as evaporation will be high.",
-            'cloudy': "Moderate weather. Continue regular farming activities.",
-            'hot': "High temperatures. Increase irrigation frequency and watch for pest activity.",
-            'cold': "Cold weather detected. Protect sensitive crops and monitor for frost.",
-        }
+        current = weather_data.get('current_weather', {})
+        temperature = current.get('temperature', 25)
+        wind_speed = current.get('windspeed', 10)
+        weather_code = current.get('weathercode', 0)
         
-        weather = weather_data.get('weather', [{}])[0]
-        main_weather = weather.get('main', '').lower()
-        temp = weather_data.get('main', {}).get('temp', 0)
-        humidity = weather_data.get('main', {}).get('humidity', 0)
+        # Determine conditions
+        is_rainy = weather_code in [51, 53, 55, 61, 63, 65, 80, 81, 82]
+        is_clear = weather_code in [0, 1]
+        is_cloudy = weather_code in [2, 3]
+        is_storm = weather_code >= 95
         
         # Generate advisory
-        advice = advisories.get('cloudy')
+        advisory_text = "Moderate weather. Continue regular farming activities."
         
-        if 'rain' in main_weather:
-            advice = advisories['rainy']
-        elif temp > 35:
-            advice = advisories['hot']
-        elif temp < 10:
-            advice = advisories['cold']
-        elif 'clear' in main_weather or 'sunny' in main_weather:
-            advice = advisories['clear']
+        if is_storm:
+            advisory_text = "Thunderstorms expected. Postpone field activities. Secure equipment and shelter animals."
+        elif is_rainy:
+            advisory_text = "Rain expected. Good for watering. Ensure proper drainage to prevent waterlogging. Consider postponing fertilizer application."
+        elif temperature > 35:
+            advisory_text = f"High temperature ({temperature:.0f}°C). Increase irrigation frequency. Watch for pest activity. Provide shade for sensitive crops."
+        elif temperature < 15:
+            advisory_text = f"Cool temperature ({temperature:.0f}°C). Protect sensitive crops from cold. Delay planting if expecting frost."
+        elif is_clear:
+            advisory_text = "Clear skies. Good for field activities like spraying and harvesting. Monitor soil moisture."
+        elif wind_speed > 20:
+            advisory_text = f"Strong winds ({wind_speed:.0f} km/h). Avoid spraying. Check for wind damage to tall crops."
         
         return {
-            'current_weather': main_weather,
-            'temperature': temp,
-            'humidity': humidity,
-            'advisory': advice
+            'current_weather': 'rainy' if is_rainy else 'storm' if is_storm else 'clear' if is_clear else 'cloudy',
+            'temperature': round(temperature),
+            'humidity': 65,  # Open-Meteo provides humidity in hourly data
+            'wind_speed': round(wind_speed),
+            'rainfall': weather_data.get('daily', {}).get('precipitation_sum', [0])[0] if weather_data.get('daily') else 0,
+            'advisory': advisory_text,
+            'weather_code': weather_code
+        }
+    
+    @classmethod
+    def _get_default_advisory(cls):
+        """Return default advisory when API fails"""
+        return {
+            'current_weather': 'unknown',
+            'temperature': 25,
+            'humidity': 60,
+            'wind_speed': 10,
+            'rainfall': 0,
+            'advisory': 'Unable to fetch live weather. Showing default values.'
         }
 
 
@@ -259,132 +332,6 @@ class SensorService:
             }
         
         return summary
-
-
-class MarketService:
-    """Service for market-related operations"""
-    
-    @staticmethod
-    def haversine_distance(lat1, lon1, lat2, lon2):
-        """Calculate distance between two coordinates using Haversine formula"""
-        from math import radians, cos, sin, asin, sqrt
-        
-        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-        dlon = lon2 - lon1
-        dlat = lat2 - lat1
-        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-        c = 2 * asin(sqrt(a))
-        km = 6371 * c
-        return km
-    
-    @staticmethod
-    def find_nearby_markets(user_latitude, user_longitude, radius_km=50):
-        """Find markets within radius"""
-        from .models import Market
-        
-        nearby_markets = []
-        all_markets = Market.objects.all()
-        
-        for market in all_markets:
-            distance = MarketService.haversine_distance(
-                float(user_latitude),
-                float(user_longitude),
-                float(market.latitude),
-                float(market.longitude)
-            )
-            
-            if distance <= radius_km:
-                nearby_markets.append({
-                    'market': market,
-                    'distance': distance
-                })
-        
-        # Sort by distance
-        nearby_markets.sort(key=lambda x: x['distance'])
-        return nearby_markets
-    """Service for fetching weather data from OpenWeatherMap (free tier)"""
-    
-    API_KEY = getattr(settings, 'OPENWEATHER_API_KEY', '')
-    BASE_URL = 'https://api.openweathermap.org/data/2.5/weather'
-    
-    @classmethod
-    def get_weather(cls, latitude, longitude):
-        """Get weather for location with caching"""
-        # Check cache first
-        try:
-            cache = WeatherCache.objects.get(
-                latitude=float(latitude),
-                longitude=float(longitude)
-            )
-            if cache.is_fresh():
-                return cache.weather_data
-            else:
-                cache.delete()
-        except WeatherCache.DoesNotExist:
-            pass
-        
-        # Fetch from API
-        params = {
-            'lat': latitude,
-            'lon': longitude,
-            'appid': cls.API_KEY,
-            'units': 'metric'
-        }
-        
-        try:
-            response = requests.get(cls.BASE_URL, params=params, timeout=5)
-            response.raise_for_status()
-            weather_data = response.json()
-            
-            # Cache the result
-            WeatherCache.objects.update_or_create(
-                latitude=float(latitude),
-                longitude=float(longitude),
-                defaults={'weather_data': weather_data}
-            )
-            
-            return weather_data
-        except Exception as e:
-            logger.error(f"Error fetching weather: {str(e)}")
-            return None
-    
-    @classmethod
-    def get_farming_advisory(cls, weather_data, crop_type='general'):
-        """Generate farming advisory based on weather"""
-        if not weather_data:
-            return None
-        
-        advisories = {
-            'rainy': "Good time for watering. Ensure proper drainage to prevent waterlogging.",
-            'clear': "Good for field activities. Monitor soil moisture as evaporation will be high.",
-            'cloudy': "Moderate weather. Continue regular farming activities.",
-            'hot': "High temperatures. Increase irrigation frequency and watch for pest activity.",
-            'cold': "Cold weather detected. Protect sensitive crops and monitor for frost.",
-        }
-        
-        weather = weather_data.get('weather', [{}])[0]
-        main_weather = weather.get('main', '').lower()
-        temp = weather_data.get('main', {}).get('temp', 0)
-        humidity = weather_data.get('main', {}).get('humidity', 0)
-        
-        # Generate advisory
-        advice = advisories.get('cloudy')
-        
-        if 'rain' in main_weather:
-            advice = advisories['rainy']
-        elif temp > 35:
-            advice = advisories['hot']
-        elif temp < 10:
-            advice = advisories['cold']
-        elif 'clear' in main_weather or 'sunny' in main_weather:
-            advice = advisories['clear']
-        
-        return {
-            'current_weather': main_weather,
-            'temperature': temp,
-            'humidity': humidity,
-            'advisory': advice
-        }
 
 
 class MarketService:
