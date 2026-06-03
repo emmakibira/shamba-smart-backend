@@ -21,7 +21,6 @@ click==8.1.7
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
-cockpit @ file:///builddir/build/BUILD/cockpit-361-build/cockpit-361/tmp/wheel/cockpit-361-py3-none-any.whl#sha256=3ee132fa1d1cfa874c8b161f8f836cf4456d82d7299b66b4a5d2ff93f57c8098
 colorama==0.4.6
 crypt_r==3.13.1
 cryptography==48.0.0
@@ -37,6 +36,7 @@ django-extensions==4.1
 djangorestframework==3.17.1
 djangorestframework_simplejwt==5.5.1
 dnf==4.24.0
+docopt==0.6.2
 drf-spectacular==0.26.5
 fedora-third-party==0.10
 file-magic==0.4.0
@@ -91,6 +91,7 @@ perf==0.1
 pexpect==4.9.0
 pid==3.0.4
 pillow==11.3.0
+pipreqs==0.4.13
 ply==3.11
 productmd==1.50
 prompt_toolkit==3.0.52
@@ -114,7 +115,6 @@ pygdbmi==0.11.0.0
 PyGObject==3.54.5
 pyinotify==0.9.6
 PyJWT==2.12.1
-pykickstart @ file:///builddir/build/BUILD/pykickstart-3.66-build/pykickstart-3.66
 pyparsing==3.3.2
 pyparted==3.13.0
 PySocks==1.7.1
@@ -138,11 +138,8 @@ rpds-py==0.27.0
 rpm==6.0.1
 s3transfer==0.17.0
 scipy==1.17.1
-selinux @ file:///builddir/build/BUILD/libselinux-3.9-build/libselinux-3.9/src
 sentry-sdk==2.35.0
-sepolicy @ file:///builddir/build/BUILD/policycoreutils-3.9-build/selinux-3.9/python/sepolicy
 setools==4.6.0
-setroubleshoot @ file:///builddir/build/BUILD/setroubleshoot-3.3.36-build/setroubleshoot-3.3.36/src
 setuptools==78.1.1
 simpleaudio==1.0.4
 simpleline==1.9.0
@@ -167,3 +164,4 @@ vine==5.1.0
 wcwidth==0.7.0
 whitenoise==6.12.0
 xkbregistry==0.3
+yarg==0.1.10
