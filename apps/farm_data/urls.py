@@ -10,7 +10,8 @@ from .views import (
     sensor_readings,
     sensor_alerts,
     sensors_summary,
-    weather_forecast
+    weather_forecast,
+    latest_market_report
 )
 
 router = DefaultRouter()
@@ -19,6 +20,7 @@ router.register(r'sensors', SensorDeviceViewSet, basename='sensor-device')
 urlpatterns = [
     # Existing endpoints
     path('commodity-prices/', CommodityPriceListView.as_view(), name='commodity-prices'),
+    path('market-report/', latest_market_report, name='latest-market-report'),
     path('weather-advisory/', weather_advisory, name='weather-advisory'),
     path('weather-forecast/', weather_forecast, name='weather-forecast'),
     path('nearby-markets/', nearby_markets, name='nearby-markets'),

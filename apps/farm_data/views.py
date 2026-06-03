@@ -347,3 +347,99 @@ def weather_forecast(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def latest_market_report(request):
+    """Get the latest market report containing Tanzanian wholesale averages and regional prices (TZS/kg)"""
+    report = {
+        "id": "2026-05-11",
+        "weekLabel": "11 – 15 Mei, 2026",
+        "weekStart": "2026-05-11",
+        "weekEnd": "2026-05-15",
+        "sourcePdf": "Mwenendo wa Bei za Mazao tarehe 11 - 15 Mei, 2026.pdf",
+        "uploadedAt": "2026-05-15T00:00:00.000Z",
+        "national": [
+            {"crop": "mahindi", "priceThisWeek": 800, "priceLastWeek": 800, "changePercent": 0.0},
+            {"crop": "mchele", "priceThisWeek": 2300, "priceLastWeek": 2400, "changePercent": -4.2},
+            {"crop": "maharage", "priceThisWeek": 2100, "priceLastWeek": 2100, "changePercent": 0.0},
+            {"crop": "mtama", "priceThisWeek": 1600, "priceLastWeek": 1700, "changePercent": -5.9},
+            {"crop": "uwele", "priceThisWeek": 1600, "priceLastWeek": 1600, "changePercent": 0.0},
+            {"crop": "ulezi", "priceThisWeek": 2100, "priceLastWeek": 2200, "changePercent": -4.5},
+            {"crop": "viazi_mviringo", "priceThisWeek": 900, "priceLastWeek": 900, "changePercent": 0.0}
+        ],
+        "regional": [
+            {
+                "regionId": "dodoma",
+                "regionNameSw": "Dodoma",
+                "regionNameEn": "Dodoma",
+                "prices": [
+                    {"crop": "mahindi", "priceThisWeek": 700, "priceLastWeek": 700, "changePercent": 0.0},
+                    {"crop": "mchele", "priceThisWeek": 2900, "priceLastWeek": 3000, "changePercent": -3.3},
+                    {"crop": "maharage", "priceThisWeek": 2000, "priceLastWeek": 2100, "changePercent": -4.8},
+                    {"crop": "mtama", "priceThisWeek": 1400, "priceLastWeek": 1400, "changePercent": 0.0},
+                    {"crop": "uwele", "priceThisWeek": 2100, "priceLastWeek": 2100, "changePercent": 0.0},
+                    {"crop": "ulezi", "priceThisWeek": None, "priceLastWeek": None, "changePercent": None},
+                    {"crop": "viazi_mviringo", "priceThisWeek": 700, "priceLastWeek": 700, "changePercent": 0.0}
+                ]
+            },
+            {
+                "regionId": "arusha",
+                "regionNameSw": "Arusha",
+                "regionNameEn": "Arusha",
+                "prices": [
+                    {"crop": "mahindi", "priceThisWeek": 800, "priceLastWeek": 800, "changePercent": 0.0},
+                    {"crop": "mchele", "priceThisWeek": 2900, "priceLastWeek": 2900, "changePercent": 0.0},
+                    {"crop": "maharage", "priceThisWeek": 2100, "priceLastWeek": 2100, "changePercent": 0.0},
+                    {"crop": "mtama", "priceThisWeek": 1300, "priceLastWeek": 1300, "changePercent": 0.0},
+                    {"crop": "uwele", "priceThisWeek": 2300, "priceLastWeek": 2300, "changePercent": 0.0},
+                    {"crop": "ulezi", "priceThisWeek": 900, "priceLastWeek": 1000, "changePercent": -10.0},
+                    {"crop": "viazi_mviringo", "priceThisWeek": None, "priceLastWeek": None, "changePercent": None}
+                ]
+            },
+            {
+                "regionId": "dar_es_salaam",
+                "regionNameSw": "Dar es Salaam",
+                "regionNameEn": "Dar es Salaam",
+                "prices": [
+                    {"crop": "mahindi", "priceThisWeek": 900, "priceLastWeek": 1100, "changePercent": -18.2},
+                    {"crop": "mchele", "priceThisWeek": 2900, "priceLastWeek": 3200, "changePercent": -9.4},
+                    {"crop": "maharage", "priceThisWeek": 2800, "priceLastWeek": 2900, "changePercent": -3.4},
+                    {"crop": "mtama", "priceThisWeek": 1300, "priceLastWeek": None, "changePercent": None},
+                    {"crop": "uwele", "priceThisWeek": 1300, "priceLastWeek": None, "changePercent": None},
+                    {"crop": "ulezi", "priceThisWeek": 2300, "priceLastWeek": None, "changePercent": None},
+                    {"crop": "viazi_mviringo", "priceThisWeek": None, "priceLastWeek": 700, "changePercent": None}
+                ]
+            },
+            {
+                "regionId": "lindi",
+                "regionNameSw": "Lindi",
+                "regionNameEn": "Lindi",
+                "prices": [
+                    {"crop": "mahindi", "priceThisWeek": 800, "priceLastWeek": 900, "changePercent": -11.1},
+                    {"crop": "mchele", "priceThisWeek": 2700, "priceLastWeek": 2700, "changePercent": 0.0},
+                    {"crop": "maharage", "priceThisWeek": 2400, "priceLastWeek": 2500, "changePercent": -4.0},
+                    {"crop": "mtama", "priceThisWeek": 2300, "priceLastWeek": 2300, "changePercent": 0.0},
+                    {"crop": "uwele", "priceThisWeek": 1800, "priceLastWeek": 3300, "changePercent": None},
+                    {"crop": "ulezi", "priceThisWeek": 3300, "priceLastWeek": 800, "changePercent": None},
+                    {"crop": "viazi_mviringo", "priceThisWeek": 800, "priceLastWeek": 800, "changePercent": 0.0}
+                ]
+            },
+            {
+                "regionId": "morogoro",
+                "regionNameSw": "Morogoro",
+                "regionNameEn": "Morogoro",
+                "prices": [
+                    {"crop": "mahindi", "priceThisWeek": 900, "priceLastWeek": 1100, "changePercent": -18.2},
+                    {"crop": "mchele", "priceThisWeek": 2900, "priceLastWeek": 2500, "changePercent": 16.0},
+                    {"crop": "maharage", "priceThisWeek": 2300, "priceLastWeek": 2700, "changePercent": -14.8},
+                    {"crop": "mtama", "priceThisWeek": 1700, "priceLastWeek": 2600, "changePercent": -32.0},
+                    {"crop": "uwele", "priceThisWeek": None, "priceLastWeek": 2500, "changePercent": -22.2},
+                    {"crop": "ulezi", "priceThisWeek": None, "priceLastWeek": 900, "changePercent": None},
+                    {"crop": "viazi_mviringo", "priceThisWeek": 700, "priceLastWeek": None, "changePercent": None}
+                ]
+            }
+        ]
+    }
+    return Response(report)
+
