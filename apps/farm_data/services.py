@@ -124,11 +124,21 @@ class WeatherService:
         times = daily.get('time', [])
         
         for i, date in enumerate(times):
+            precipitation_sum = (
+                daily.get('precipitation_sum', [0])[i]
+                if i < len(daily.get('precipitation_sum', []))
+                else 0
+            )
+            
+            # Keep both field names for compatibility:
+            # - `precipitation` used by some UI/components
+            # - `precipitation_sum` used by get_farming_advisory() rainfall extraction
             forecasts.append({
                 'date': date,
                 'temp_max': daily.get('temperature_2m_max', [0])[i] if i < len(daily.get('temperature_2m_max', [])) else 0,
                 'temp_min': daily.get('temperature_2m_min', [0])[i] if i < len(daily.get('temperature_2m_min', [])) else 0,
-                'precipitation': daily.get('precipitation_sum', [0])[i] if i < len(daily.get('precipitation_sum', [])) else 0,
+                'precipitation': precipitation_sum,
+                'precipitation_sum': precipitation_sum,
             })
         
         return forecasts
