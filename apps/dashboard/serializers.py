@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from backend.apps.dashboard.models import WeatherData, AlertNotification
+from apps.dashboard.models import WeatherData, AlertNotification
 
 class WeatherDataSerializer(serializers.ModelSerializer):
     condition_display = serializers.CharField(source='get_condition_display', read_only=True)
