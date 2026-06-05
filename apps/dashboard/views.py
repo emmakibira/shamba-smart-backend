@@ -1,10 +1,10 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from apps.dashboard.models import WeatherData, AlertNotification
-from apps.dashboard.serializers import WeatherDataSerializer, AlertNotificationSerializer
-from apps.crops.models import Crop, CropRecommendation
-from apps.crops.serializers import CropSerializer, CropRecommendationSerializer
+from backend.apps.dashboard.models import WeatherData, AlertNotification
+from backend.apps.dashboard.serializers import WeatherDataSerializer, AlertNotificationSerializer
+from backend.apps.crops.models import Crop, CropRecommendation
+from backend.apps.crops.serializers import CropSerializer, CropRecommendationSerializer
 
 class WeatherViewSet(viewsets.ModelViewSet):
     serializer_class = WeatherDataSerializer

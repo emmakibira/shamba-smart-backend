@@ -1,5 +1,5 @@
 from django.db import models
-from apps.users.models import UserProfile
+from backend.apps.users.models import UserProfile
 
 
 class Payment(models.Model):

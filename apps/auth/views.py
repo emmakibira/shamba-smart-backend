@@ -47,21 +47,42 @@ class AuthViewSet(viewsets.ViewSet):
             firebase_uid = decoded_token.get('uid')
             email = decoded_token.get('email')
             
+            if not email:
+                email = f"{firebase_uid}@shambasmart.com"
+            
             # Get or create user
             try:
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
-                # User doesn't exist, return error
-                return Response({
-                    'success': False,
-                    'message': 'User not found. Please register first.'
-                }, status=status.HTTP_404_NOT_FOUND)
+                name = decoded_token.get('name', 'Farmer')
+                first_name = name.split(' ')[0] if name else 'Farmer'
+                last_name = ' '.join(name.split(' ')[1:]) if name else ''
+                
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                user.save()
             
-            # Update Firebase UID if not set
+            # Update or create profile with Firebase UID
             profile, created = UserProfile.objects.get_or_create(user=user)
             if not profile.firebase_uid:
                 profile.firebase_uid = firebase_uid
-                profile.save()
+            
+            # Ensure it has basic default values if null so that views don't crash
+            if profile.latitude is None:
+                profile.latitude = -6.179  # Default Dodoma / Tanzania coordinates
+            if profile.longitude is None:
+                profile.longitude = 35.748
+            if profile.farm_size is None:
+                profile.farm_size = 1.0
+            if profile.soil_type is None or not profile.soil_type:
+                profile.soil_type = 'loam'
+            if not profile.primary_crops:
+                profile.primary_crops = ['maize']
+            profile.save()
             
             # Generate tokens
             refresh = RefreshToken.for_user(user)

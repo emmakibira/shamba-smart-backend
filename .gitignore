@@ -133,3 +133,6 @@ Thumbs.db
 # Media and Static files
 media/
 staticfiles/
+
+# Firebase secrets
+secrets/firebase-service-account.json

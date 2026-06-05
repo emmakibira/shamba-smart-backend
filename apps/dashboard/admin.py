@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.dashboard.models import WeatherData, AlertNotification
+from backend.apps.dashboard.models import WeatherData, AlertNotification
 
 @admin.register(WeatherData)
 class WeatherDataAdmin(admin.ModelAdmin):

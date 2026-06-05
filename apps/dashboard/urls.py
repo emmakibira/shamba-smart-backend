@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from apps.dashboard.views import WeatherViewSet, AlertViewSet, DashboardViewSet
+from backend.apps.dashboard.views import WeatherViewSet, AlertViewSet, DashboardViewSet
 
 router = DefaultRouter()
 router.register(r'weather', WeatherViewSet, basename='weather')

@@ -179,7 +179,53 @@ class SensorDeviceViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Only return sensors belonging to the current user"""
-        return SensorDevice.objects.filter(user=self.request.user)
+        queryset = SensorDevice.objects.filter(user=self.request.user)
+        if queryset.count() == 0:
+            # Create three mock sensors for the user
+            s1 = SensorDevice.objects.create(
+                user=self.request.user,
+                name="North Field Moisture",
+                device_id=f"SM-{self.request.user.id}-1",
+                sensor_type="soil_moisture",
+                status="active",
+                location_name="North Field",
+                battery_level=85,
+                unit="%",
+                min_threshold=30.0,
+                max_threshold=80.0
+            )
+            s2 = SensorDevice.objects.create(
+                user=self.request.user,
+                name="Greenhouse Temp",
+                device_id=f"TM-{self.request.user.id}-2",
+                sensor_type="temperature",
+                status="active",
+                location_name="Greenhouse",
+                battery_level=92,
+                unit="°C",
+                min_threshold=15.0,
+                max_threshold=35.0
+            )
+            s3 = SensorDevice.objects.create(
+                user=self.request.user,
+                name="South Field pH",
+                device_id=f"PH-{self.request.user.id}-3",
+                sensor_type="soil_ph",
+                status="active",
+                location_name="South Field",
+                battery_level=78,
+                unit="pH",
+                min_threshold=5.5,
+                max_threshold=7.5
+            )
+            
+            # Add initial readings
+            SensorReading.objects.create(sensor=s1, value=42.5)
+            SensorReading.objects.create(sensor=s2, value=26.4)
+            SensorReading.objects.create(sensor=s3, value=6.2)
+            
+            queryset = SensorDevice.objects.filter(user=self.request.user)
+        return queryset
     
     def get_serializer_class(self):
         """Use different serializers for list vs detail"""
