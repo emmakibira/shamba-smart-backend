@@ -135,7 +135,7 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://localhost:8000,http://localhost:8082,exp://localhost:8082',
+    default='http://localhost:3000,http://localhost:8000,http://localhost:8082,exp://localhost:8082,',
     cast=Csv()
 )
 

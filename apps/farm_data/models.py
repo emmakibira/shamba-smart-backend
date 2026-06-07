@@ -170,33 +170,7 @@ class SensorAlert(models.Model):
     resolved_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
-    class Meta:
-        ordering = ['-created_at']
-        indexes = [
-            models.Index(fields=['sensor', 'is_resolved']),
-        ]
-    
-    def __str__(self):
-        return f"{self.sensor.name} - {self.severity}: {self.message}"
-    """Store commodity prices from markets"""
-    commodity_name = models.CharField(max_length=100)
-    market_name = models.CharField(max_length=200)
-    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
-    unit = models.CharField(max_length=50, default='kg')  # kg, quintal, etc.
-    date_recorded = models.DateField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    source = models.CharField(max_length=255, blank=True)
-    
-    class Meta:
-        verbose_name_plural = "Commodity Prices"
-        ordering = ['-date_recorded']
-        indexes = [
-            models.Index(fields=['commodity_name', 'date_recorded']),
-        ]
-    
-    def __str__(self):
-        return f"{self.commodity_name} - {self.market_name}"
-
+   
 
 class Market(models.Model):
     """Store market locations for nearby market search"""

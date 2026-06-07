@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     CommodityPriceListView,
+    register_sensor,
     weather_advisory,
     nearby_markets,
     crop_recommendations,
@@ -25,6 +26,7 @@ urlpatterns = [
     path('weather-forecast/', weather_forecast, name='weather-forecast'),
     path('nearby-markets/', nearby_markets, name='nearby-markets'),
     path('crop-recommendations/', crop_recommendations, name='crop-recommendations'),
+    path('sensors/register/', register_sensor, name='sensor-register'),
     
     # Sensor endpoints
     path('', include(router.urls)),

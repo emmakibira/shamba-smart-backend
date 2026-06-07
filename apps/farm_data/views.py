@@ -394,6 +394,38 @@ def weather_forecast(request):
         )
 
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def register_sensor(request):
+    """ESP32 calls this on first boot to register itself."""
+    device_id   = request.data.get('device_id')
+    sensor_type = request.data.get('sensor_type', 'multi')
+    location    = request.data.get('location_name', 'Field')
+    unit        = request.data.get('unit', '')
+
+    if not device_id:
+        return Response({'error': 'device_id required'}, status=400)
+
+    sensor, created = SensorDevice.objects.get_or_create(
+        device_id=device_id,
+        defaults={
+            'user': request.user,
+            'name': f"{sensor_type.replace('_',' ').title()} – {location}",
+            'sensor_type': sensor_type,
+            'location_name': location,
+            'unit': unit,
+            'status': 'active',
+        }
+    )
+    if not created:
+        sensor.status = 'active'
+        sensor.save(update_fields=['status', 'last_seen'])
+
+    from .serializers import SensorDeviceListSerializer
+    return Response(SensorDeviceListSerializer(sensor).data,
+                    status=201 if created else 200)
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def latest_market_report(request):
