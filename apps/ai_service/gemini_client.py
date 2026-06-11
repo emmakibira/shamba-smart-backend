@@ -1,4 +1,14 @@
-import google.generativeai as genai
+try:
+    import google.genai as genai
+    NEW_GEMINI = True
+except ImportError:
+    import google.generativeai as genai
+    NEW_GEMINI = False
+    import warnings
+    warnings.warn(
+        "google.generativeai is deprecated. Please install google-genai: pip install google-genai",
+        FutureWarning
+    )
 import requests
 import logging
 from django.conf import settings
@@ -14,10 +24,17 @@ class GeminiClient:
     def __init__(self):
         self.api_key = getattr(settings, 'GEMINI_API_KEY', '')
         if self.api_key:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
+            if NEW_GEMINI:
+                # New google.genai API
+                self.client = genai.Client(api_key=self.api_key)
+                self.model = 'gemini-pro'
+            else:
+                # Old google.generativeai API (deprecated)
+                genai.configure(api_key=self.api_key)
+                self.model = genai.GenerativeModel('gemini-pro')
         else:
             self.model = None
+            self.client = None
     
     def get_real_farm_context(self, user_profile):
         """Build comprehensive context from real farm data"""
