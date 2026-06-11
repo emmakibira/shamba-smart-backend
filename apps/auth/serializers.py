@@ -9,7 +9,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = [
             'phone_number', 'latitude', 'longitude', 'location_address',
-            'farm_size', 'primary_crops', 'soil_type', 'profile_picture', 'bio'
+            'farm_size', 'primary_crops', 'soil_type', 'profile_picture', 'bio', 'role'
         ]
 
 

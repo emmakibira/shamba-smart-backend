@@ -15,9 +15,16 @@ class UserProfile(models.Model):
         ('chalky', 'Chalky'),
     ]
     
+    ROLE_CHOICES = [
+        ('farmer', 'Farmer'),
+        ('admin', 'Admin'),
+        ('operator', 'Operator'),
+    ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     firebase_uid = models.CharField(max_length=255, unique=True, null=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='farmer')
     
     # Location data
     latitude = models.DecimalField(
