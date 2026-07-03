@@ -5,12 +5,13 @@ from datetime import date
 
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import MarketPrice
 from .serializers import MarketPriceSerializer
+from utils.firebase_utils import FirebaseAuth
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,12 @@ class MarketPriceUploadView(APIView):
 
         today = date.today()
         created = []
+        if not hasattr(request.user, 'profile') or request.user.profile.role != 'admin':
+            return Response(
+                {'error': 'Only admin users may upload market price data.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         for row in rows:
             obj, _ = MarketPrice.objects.update_or_create(
                 crop_name=row['crop_name'],
@@ -91,6 +98,25 @@ class MarketPriceUploadView(APIView):
                 defaults={'price': row['price'], 'uploaded_by': request.user},
             )
             created.append(obj)
+
+        try:
+            # Also keep a copy in Firestore for admin-maintained market data.
+            FirebaseAuth.write_market_price_rows(
+                [
+                    {
+                        'crop_name': r.crop_name,
+                        'price': float(r.price),
+                        'market': r.market,
+                        'date': r.date.isoformat(),
+                        'created_at': r.created_at.isoformat() if r.created_at else None,
+                        'uploaded_by': request.user.email or request.user.username,
+                    }
+                    for r in created
+                ],
+                metadata={'source': 'backend_pdf_upload', 'uploaded_by': request.user.email or request.user.username},
+            )
+        except Exception:
+            logger.warning('Failed to replicate market price rows to Firestore.')
 
         return Response({
             'message': f'Successfully imported {len(created)} price records.',

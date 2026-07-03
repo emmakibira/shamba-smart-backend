@@ -138,22 +138,47 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
 }
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://localhost:8000,http://localhost:8082,exp://localhost:8082,',
+    default='http://localhost:3000,http://localhost:8000,http://localhost:8082,https://localhost:3000,https://localhost:8000,https://shamba-smart.vercel.app,https://shamba-smart.onrender.com,exp://localhost:8082,exp://127.0.0.1:8082,https://*.expo.dev,https://*.exp.direct',
     cast=Csv()
 )
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'origin',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost:3000,http://localhost:8000,http://localhost:8082,https://localhost:3000,https://localhost:8000,https://shamba-smart.vercel.app,https://shamba-smart.onrender.com',
+    cast=Csv()
+)
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
 
 # API Base URL (for frontend to connect)
 API_BASE_URL = config('API_BASE_URL', default='http://localhost:8000/api')
