@@ -6,7 +6,7 @@ from apps.crops.serializers import CropSerializer, CropRecommendationSerializer
 
 class CropViewSet(viewsets.ModelViewSet):
     serializer_class = CropSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         return Crop.objects.filter(user=self.request.user)
@@ -16,7 +16,7 @@ class CropViewSet(viewsets.ModelViewSet):
 
 class CropRecommendationViewSet(viewsets.ModelViewSet):
     serializer_class = CropRecommendationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         return CropRecommendation.objects.filter(user=self.request.user)

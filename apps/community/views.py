@@ -1,3 +1,4 @@
+from rest_framework.permissions import AllowAny
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +10,7 @@ from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer
 
 class PostListCreateView(generics.ListCreateAPIView):
     """List all posts or create a new post"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Post.objects.all()
     
     def get_serializer_class(self):

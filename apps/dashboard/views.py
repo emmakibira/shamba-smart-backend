@@ -8,7 +8,7 @@ from apps.crops.serializers import CropSerializer, CropRecommendationSerializer
 
 class WeatherViewSet(viewsets.ModelViewSet):
     serializer_class = WeatherDataSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         return WeatherData.objects.filter(user=self.request.user)
@@ -22,7 +22,7 @@ class WeatherViewSet(viewsets.ModelViewSet):
 
 class AlertViewSet(viewsets.ModelViewSet):
     serializer_class = AlertNotificationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         return AlertNotification.objects.filter(user=self.request.user)
@@ -42,7 +42,7 @@ class AlertViewSet(viewsets.ModelViewSet):
 
 class DashboardViewSet(viewsets.ViewSet):
     """Dashboard overview endpoint"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=['get'])
     def overview(self, request):

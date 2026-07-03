@@ -12,7 +12,7 @@ from apps.users.serializers import (
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_serializer_class(self):
         if self.action == 'retrieve' or self.action == 'update':
@@ -28,7 +28,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class ProfileViewSet(viewsets.ViewSet):
     """Get and update current user profile"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def list(self, request):
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -46,7 +46,7 @@ class ProfileViewSet(viewsets.ViewSet):
 
 class FarmDataListCreateView(generics.ListCreateAPIView):
     """List and create farm data records"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     serializer_class = FarmDataSerializer
     
     def get_queryset(self):
@@ -58,7 +58,7 @@ class FarmDataListCreateView(generics.ListCreateAPIView):
 
 class FarmDataDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Get, update, or delete farm data"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     serializer_class = FarmDataSerializer
     
     def get_queryset(self):
