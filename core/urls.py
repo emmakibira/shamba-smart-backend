@@ -19,7 +19,7 @@ def home_view(request):
         "<li>/api/crops/</li>"
         "<li>/api/dashboard/</li>"
         "<li>/api/community/</li>"
-        "<li>/api/payments/</li>"
+        "<li>/api/market/</li>"
         "<li>/api/ai/</li>"
         "<li>/api/farm/</li>"
         "<li>/admin/</li>"
@@ -38,7 +38,7 @@ urlpatterns = [
     path('api/crops/', include('apps.crops.urls')),
     path('api/dashboard/', include('apps.dashboard.urls')),
     path('api/community/', include('apps.community.urls')),
-    path('api/payments/', include('apps.payments.urls')),
+    path('api/market/', include('apps.market.urls')),
     path('api/ai/', include('apps.ai_service.urls')),
     path('api/farm/', include('apps.farm_data.urls')),
 ]

@@ -2,10 +2,10 @@
 Django settings for Shamba Smart project.
 """
 
-from typing import TypeVarTuple
 from pathlib import Path
 from decouple import config, Csv
 from datetime import timedelta
+import dj_database_url
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,13 +36,14 @@ INSTALLED_APPS = [
     'apps.crops',
     'apps.dashboard',
     'apps.community',
-    'apps.payments',
+    'apps.market',
     'apps.ai_service',
     'apps.farm_data',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,13 +73,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database
+# Database — use PostgreSQL on Render, SQLite locally
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -144,10 +148,8 @@ CORS_ALLOW_CREDENTIALS = True
 # API Base URL (for frontend to connect)
 API_BASE_URL = config('API_BASE_URL', default='http://localhost:8000/api')
 
-# Stripe Configuration
-STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
-STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
-STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+# Stripe Configuration removed — payments not used
+
 
 # Firebase Configuration
 FIREBASE_CREDENTIALS_PATH = config('FIREBASE_CREDENTIALS_PATH', default='')
