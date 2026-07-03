@@ -19,7 +19,7 @@ class FirebaseAuth:
             return cls._app
 
         try:
-            cred_path = getattr(settings, 'FIREBASE_CREDENTIALS_PATH', None)
+            cred_path = getattr(settings, "FIREBASE_CREDENTIALS_PATH", None)
             if cred_path:
                 try:
                     cred = credentials.Certificate(cred_path)
@@ -67,7 +67,9 @@ class FirebaseAuth:
 
         try:
             coll = db.collection("marketReports")
-            docs = coll.order_by("weekEnd", direction=firestore.Query.DESCENDING).limit(1).stream()
+            docs = coll.order_by(
+                "weekEnd", direction=firestore.Query.DESCENDING
+            ).limit(1).stream()
             latest = next(docs, None)
             if latest and latest.exists:
                 return latest.to_dict()
@@ -83,7 +85,9 @@ class FirebaseAuth:
 
         try:
             coll = db.collection("marketPrices")
-            query = coll.order_by("date", direction=firestore.Query.DESCENDING).limit(limit)
+            query = coll.order_by(
+                "date", direction=firestore.Query.DESCENDING
+            ).limit(limit)
             if crop:
                 query = query.where("crop_name", "==", crop)
             return [doc.to_dict() for doc in query.stream()]
